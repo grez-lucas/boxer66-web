@@ -7,7 +7,6 @@ export function authenticateUser(
   body: AuthLoginBody
 ): Promise<AxiosResponse<AuthLoginResponse>> {
   return api.post<AuthLoginResponse>('/api/login', body);
-
 }
 
 export function successLoginResponseHandler(
@@ -20,6 +19,7 @@ export function successLoginResponseHandler(
     store.setTokenInfo(
       responseAuthLogin.token,
       responseAuthLogin.tokenExpirationInstant,
+      responseAuthLogin.userID,
     );
   } else {
     console.log('Received a non-200 status from login');

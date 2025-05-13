@@ -7,6 +7,7 @@ import {
 } from 'vue-router';
 import { useAuthStore } from 'src/stores/auth-store';
 import routes from './routes';
+import type { AxiosError } from 'axios';
 
 /*
  * If not building with SSR mode, you can
@@ -32,9 +33,40 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
 
-  // const authStore = useAuthStore();
-  //
-  // TODO: Do stuff with the authStore
+  const authStore = useAuthStore();
+  Router.beforeEach((to, _, next) => {
+    const accessToken = sessionStorage.getItem('access_token') || '';
+    const tokenExpirationInstant = Number(sessionStorage.getItem('token_expiration_instant')) || 0;
+    const userID = Number(sessionStorage.getItem('user_id')) || 0;
+
+    authStore.setTokenInfo(accessToken, tokenExpirationInstant, userID);
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+      if (!authStore.isAuthenticated) {
+        next({ name: 'Login' });
+      } else {
+        try {
+          // TODO: Use UserService to get the user and then the store to set it
+          return next();
+        } catch (error) {
+          const errorAxios = error as AxiosError;
+          if (errorAxios.status === 401) {
+            next({ name: 'Login' });
+          }
+          console.log(errorAxios.status);
+          console.error('Error fetching user data:', error)
+        }
+        next(); // go wherever I'm going
+      }
+    } else {
+      // The view does not require auth
+      next();
+    }
+  });
+
+  Router.afterEach(to => {
+    document.title = to.meta.title as string;
+  });
+
 
   return Router;
 });

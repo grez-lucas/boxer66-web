@@ -1,10 +1,11 @@
 import { defineStore } from "pinia";
-import { AuthLoginBody, AuthLoginResponse } from "src/models/auth.models";
+import type { AuthLoginBody } from "src/models/auth.models";
 import { authenticateUser, isTokenExpired, successLoginResponseHandler } from "src/services/auth.service";
 
 type AuthStore = {
   token: string;
   tokenExpirationInstant: number;
+  userID: number;
 };
 
 export const useAuthStore = defineStore('auth-store', {
@@ -29,13 +30,15 @@ export const useAuthStore = defineStore('auth-store', {
         console.error(error);
       }
     },
-    setTokenInfo(token: string, expirationInstantDate: number): void {
+    setTokenInfo(token: string, expirationInstantDate: number, userID: number): void {
       this.token = token;
       this.tokenExpirationInstant = expirationInstantDate;
+      this.userID = userID;
     },
     logoutUser(): void {
       this.token = '';
       this.tokenExpirationInstant = 0;
+      this.userID = 0;
     }
 
   }
