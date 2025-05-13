@@ -5,6 +5,7 @@ import {
   createWebHashHistory,
   createWebHistory,
 } from 'vue-router';
+import { useAuthStore } from 'src/stores/auth-store';
 import routes from './routes';
 
 /*
@@ -30,6 +31,10 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
+
+  // const authStore = useAuthStore();
+  //
+  // TODO: Do stuff with the authStore
 
   return Router;
 });
