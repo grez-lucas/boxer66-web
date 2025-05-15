@@ -1,12 +1,18 @@
 import { api } from 'src/boot/axios';
 import type { AuthLoginBody, AuthLoginResponse, SuccessAuthLogin } from 'src/models/auth.models';
-import type { AxiosResponse } from 'axios';
+import type { AxiosError, AxiosResponse } from 'axios';
 import { useAuthStore } from 'src/stores/auth-store';
 
-export function authenticateUser(
+export async function authenticateUser(
   body: AuthLoginBody
 ): Promise<AxiosResponse<AuthLoginResponse>> {
-  return api.post<AuthLoginResponse>('/api/login', body);
+  try {
+    return await api.post<AuthLoginResponse>('/api/login', body);
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    console.error('Authentication error:', axiosError);
+    throw axiosError; // Re-throw the error to be caught in store.
+  }
 }
 
 export function successLoginResponseHandler(
@@ -23,6 +29,7 @@ export function successLoginResponseHandler(
     );
   } else {
     console.log('Received a non-200 status from login');
+    throw new Error(`Login failed with status ${status}`);
   }
 }
 

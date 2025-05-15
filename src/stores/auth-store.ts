@@ -23,12 +23,8 @@ export const useAuthStore = defineStore('auth-store', {
 
   actions: {
     async loginUser(loginBody: AuthLoginBody): Promise<void> {
-      try {
-        const response = await authenticateUser(loginBody);
-        successLoginResponseHandler(response.status, response.data);
-      } catch (error) {
-        console.error(error);
-      }
+      const response = await authenticateUser(loginBody);
+      successLoginResponseHandler(response.status, response.data);
     },
     setTokenInfo(token: string, expirationInstantDate: number, userID: number): void {
       this.token = token;
