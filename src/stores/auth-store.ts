@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
-import type { AuthLoginBody } from "src/models/auth.models";
-import { authenticateUser, isTokenExpired, successLoginResponseHandler } from "src/services/auth.service";
+import type { AuthLoginBody, SuccessAuthLogin } from "src/models/auth.models";
+import { authenticateUser, isTokenExpired } from "src/services/auth.service";
 
 type AuthStore = {
   token: string;
@@ -23,8 +23,20 @@ export const useAuthStore = defineStore('auth-store', {
 
   actions: {
     async loginUser(loginBody: AuthLoginBody): Promise<void> {
-      const response = await authenticateUser(loginBody);
-      successLoginResponseHandler(response.status, response.data);
+
+      try {
+        const response = await authenticateUser(loginBody);
+        const responseAuthLogin = response.data as SuccessAuthLogin;
+        this.token = responseAuthLogin.token;
+        this.userID = responseAuthLogin.userID;
+        this.tokenExpirationInstant = responseAuthLogin.tokenExpirationInstant;
+      } catch (error) {
+        console.error('Login failed in store:', error)
+        this.token = '';
+        this.userID = 0;
+        this.tokenExpirationInstant = 0;
+        throw error; // Re-throw the error so it can be handled via notification.
+      }
     },
     setTokenInfo(token: string, expirationInstantDate: number, userID: number): void {
       this.token = token;
