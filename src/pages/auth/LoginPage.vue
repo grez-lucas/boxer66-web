@@ -24,6 +24,7 @@ import { useRouter } from 'vue-router';
 import { inputForms } from 'src/constants/form.constants';
 import { useQuasar } from 'quasar';
 import { AxiosError } from 'axios';
+import { errorQuasarNotify, successQuasarNotify } from 'src/utils/notify.utils';
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -41,6 +42,7 @@ async function loginHandler(body: BodyForm): Promise<void> {
       position: 'top',
       timeout: 3000,
     })
+    successQuasarNotify("Logged in successfuly");
 
   } catch (error) {
     console.error("Login failed:", error);
@@ -50,14 +52,7 @@ async function loginHandler(body: BodyForm): Promise<void> {
     } else if (error instanceof Error) {
       errorMessage = error.message;
     }
-
-    $q.notify({
-      message: errorMessage,
-      color: "negative",
-      position: 'top',
-      timeout: 5000,
-    });
-
+    errorQuasarNotify(errorMessage);
   }
 }
 
